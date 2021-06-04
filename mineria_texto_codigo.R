@@ -23,20 +23,20 @@ head(mensajes)
 ########################## Hacer la funcion tokenizar
 limpiar_tokenizar <- function(content){
   # El orden de la limpieza no es arbitrario
-  # Se convierte todo el content a min√∫sculas
+  # Se convierte todo el content a minusculas
   nuevo_content <- tolower(content)
-  # Eliminaci√≥n de p√°ginas web (palabras que empiezan por "http." seguidas 
+  # Eliminacion de paginas web (palabras que empiezan por "http." seguidas 
   # de cualquier cosa que no sea un espacio)
   nuevo_content <- str_replace_all(nuevo_content,"http\\S*", "")
-  # Eliminaci√≥n de signos de puntuaci√≥n
+  # Eliminacion de signos de puntuacion
   nuevo_content <- str_replace_all(nuevo_content,"[[:punct:]]", " ")
-  # Eliminaci√≥n de n√∫meros
+  # Eliminacion de numeros
   nuevo_content <- str_replace_all(nuevo_content,"[[:digit:]]", " ")
-  # Eliminaci√≥n de espacios en blanco m√∫ltiples
+  # Eliminacion de espacios en blanco multiples
   nuevo_content <- str_replace_all(nuevo_content,"[\\s]+", " ")
-  # Tokenizaci√≥n por palabras individuales
+  # Tokenizacion por palabras individuales
   nuevo_content <- str_split(nuevo_content, " ")[[1]]
-  # Eliminaci√≥n de tokens con una longitud < 2
+  # Eliminacion de tokens con una longitud < 2
   nuevo_content <- keep(.x = nuevo_content, .p = function(x){str_length(x) > 1})
   return(nuevo_content)
 }
@@ -46,12 +46,12 @@ limpiar_tokenizar(texto = test)
 
 ###################################################################
 
-# Se aplica la funci√≥n de limpieza y tokenizaci√≥n a cada tweet
+# Se aplica la funcion de limpieza y tokenizacion a cada tweet
 mensajes <- mensajes %>% mutate(texto_tokenizado = map(.x = content,
                                                        .f = limpiar_tokenizar))
 mensajes %>% select(texto_tokenizado) %>% head()
 
-######################## An√°lisis exploratorio
+######################## Analisis exploratorio
 #expansion vertical
 mensajes_tidy <- mensajes %>% select(-content) %>% unnest()
 mensajes_tidy <- mensajes_tidy %>% rename(token = texto_tokenizado)
@@ -64,18 +64,18 @@ library(lubridate)
 ggplot(mensajes, aes(x = as.Date(date), fill = tipo)) +
   geom_histogram(position = "identity", bins = 20, show.legend = FALSE) +
   scale_x_date(date_labels = "%m-%Y", date_breaks = "5 month") +
-  labs(x = "fecha de publicaci√≥n", y = "n√∫mero de mensajes") +
+  labs(x = "fecha de publicaciÛn", y = "n˙mero de mensajes") +
   facet_wrap(~ tipo, ncol = 1) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
 # distribucion temnporal 2 #aqui hay error
-mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(fecha, "%Y/%m"))
+mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(date, "%Y-%m"))
 mensajes_mes_anyo %>% group_by(tipo, mes_anyo) %>% summarise(n = n()) %>%
   ggplot(aes(x = mes_anyo, y = n, color = tipo)) +
   geom_line(aes(group = tipo)) +
-  labs(title = "N√∫mero de mensajes publicados", x = "fecha de publicaci√≥n",
-       y = "n√∫mero de mensajes") +
+  labs(title = "Numero de mensajes publicados", x = "fecha de publicacion",
+       y = "numero de mensajes") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, size = 6),
         legend.position = "bottom")
@@ -90,13 +90,13 @@ mensajes_tidy %>% select(tipo, token) %>% distinct() %>%  group_by(tipo) %>%
 mensajes_tidy %>% select(tipo, token) %>% distinct() %>%
   ggplot(aes(x = tipo)) + geom_bar() + coord_flip() + theme_bw()
 
-#Palabras m√°s usadas por usuario
+#Palabras mas usadas por usuario
 mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>% group_by(tipo) %>%
   top_n(10, n) %>% arrange(tipo, desc(n)) %>% print(n=30)
 
 
 ########################## QUitar STOP WORDS
-lista_stopwords <- c('alg√∫n',
+lista_stopwords <- c('alg˙n',
                      'alguna',
                      'algunas',
                      'alguno',
@@ -205,7 +205,7 @@ lista_stopwords <- c('alg√∫n',
                      'podrian',
                      'podrias',
                      'por',
-                     'por qu√©',
+                     'por quÈ',
                      'porque',
                      'primero',
                      'puede',
@@ -230,7 +230,7 @@ lista_stopwords <- c('alg√∫n',
                      'soy',
                      'su',
                      'sus',
-                     'tambi√©n',
+                     'tambiÈn',
                      'teneis',
                      'tenemos',
                      'tener',
@@ -274,24 +274,24 @@ lista_stopwords <- c('alg√∫n',
                      'vosotros',
                      'voy',
                      'yo',
-                     '√©l',
-                     '√©sta',
-                     '√©stas',
-                     '√©ste',
-                     '√©stos',
-                     '√∫ltima',
-                     '√∫ltimas',
-                     '√∫ltimo',
-                     '√∫ltimos',
+                     'Èl',
+                     'Èsta',
+                     'Èstas',
+                     'Èste',
+                     'Èstos',
+                     '˙ltima',
+                     '˙ltimas',
+                     '˙ltimo',
+                     '˙ltimos',
                      'a',
-                     'a√±adi√≥',
-                     'a√∫n',
+                     'aÒadiÛ',
+                     'a˙n',
                      'actualmente',
                      'adelante',
-                     'adem√°s',
-                     'afirm√≥',
-                     'agreg√≥',
-                     'ah√≠',
+                     'adem·s',
+                     'afirmÛ',
+                     'agregÛ',
+                     'ahÌ',
                      'ahora',
                      'al',
                      'algo',
@@ -299,9 +299,9 @@ lista_stopwords <- c('alg√∫n',
                      'anterior',
                      'apenas',
                      'aproximadamente',
-                     'aqu√≠',
-                     'as√≠',
-                     'asegur√≥',
+                     'aquÌ',
+                     'asÌ',
+                     'asegurÛ',
                      'aunque',
                      'ayer',
                      'buen',
@@ -309,13 +309,13 @@ lista_stopwords <- c('alg√∫n',
                      'buenas',
                      'bueno',
                      'buenos',
-                     'c√≥mo',
+                     'cÛmo',
                      'casi',
                      'cerca',
                      'cinco',
-                     'coment√≥',
+                     'comentÛ',
                      'conocer',
-                     'consider√≥',
+                     'considerÛ',
                      'considera',
                      'contra',
                      'cosas',
@@ -334,10 +334,10 @@ lista_stopwords <- c('alg√∫n',
                      'deben',
                      'debido',
                      'decir',
-                     'dej√≥',
+                     'dejÛ',
                      'del',
-                     'dem√°s',
-                     'despu√©s',
+                     'dem·s',
+                     'despuÈs',
                      'dice',
                      'dicen',
                      'dicho',
@@ -359,11 +359,11 @@ lista_stopwords <- c('alg√∫n',
                      'ese',
                      'eso',
                      'esos',
-                     'est√°',
-                     'est√°n',
+                     'est·',
+                     'est·n',
                      'estaban',
                      'estar',
-                     'estar√°',
+                     'estar·',
                      'estas',
                      'este',
                      'esto',
@@ -372,15 +372,15 @@ lista_stopwords <- c('alg√∫n',
                      'ex',
                      'existe',
                      'existen',
-                     'explic√≥',
-                     'expres√≥',
+                     'explicÛ',
+                     'expresÛ',
                      'fuera',
                      'gran',
                      'grandes',
-                     'hab√≠a',
-                     'hab√≠an',
+                     'habÌa',
+                     'habÌan',
                      'haber',
-                     'habr√°',
+                     'habr·',
                      'hacerlo',
                      'hacia',
                      'haciendo',
@@ -396,25 +396,25 @@ lista_stopwords <- c('alg√∫n',
                      'hoy',
                      'hubo',
                      'igual',
-                     'indic√≥',
-                     'inform√≥',
+                     'indicÛ',
+                     'informÛ',
                      'junto',
                      'lado',
                      'le',
                      'les',
-                     'lleg√≥',
+                     'llegÛ',
                      'lleva',
                      'llevar',
                      'luego',
                      'lugar',
-                     'm√°s',
+                     'm·s',
                      'manera',
-                     'manifest√≥',
+                     'manifestÛ',
                      'mayor',
                      'me',
                      'mediante',
                      'mejor',
-                     'mencion√≥',
+                     'mencionÛ',
                      'menos',
                      'mi',
                      'misma',
@@ -428,7 +428,7 @@ lista_stopwords <- c('alg√∫n',
                      'nada',
                      'nadie',
                      'ni',
-                     'ning√∫n',
+                     'ning˙n',
                      'ninguna',
                      'ningunas',
                      'ninguno',
@@ -459,14 +459,14 @@ lista_stopwords <- c('alg√∫n',
                      'pocas',
                      'poco',
                      'pocos',
-                     'podr√°',
-                     'podr√°n',
-                     'podr√≠a',
-                     'podr√≠an',
+                     'podr·',
+                     'podr·n',
+                     'podrÌa',
+                     'podrÌan',
                      'poner',
                      'posible',
-                     'pr√≥ximo',
-                     'pr√≥ximos',
+                     'prÛximo',
+                     'prÛximos',
                      'primer',
                      'primera',
                      'primeros',
@@ -478,30 +478,30 @@ lista_stopwords <- c('alg√∫n',
                      'pudo',
                      'pueda',
                      'pues',
-                     'qu√©',
+                     'quÈ',
                      'que',
-                     'qued√≥',
+                     'quedÛ',
                      'queremos',
-                     'qui√©n',
+                     'quiÈn',
                      'quienes',
                      'quiere',
-                     'realiz√≥',
+                     'realizÛ',
                      'realizado',
                      'realizar',
                      'respecto',
-                     's√≠',
-                     's√≥lo',
+                     'sÌ',
+                     'sÛlo',
                      'se',
-                     'se√±al√≥',
+                     'seÒalÛ',
                      'sea',
                      'sean',
-                     'seg√∫n',
+                     'seg˙n',
                      'segunda',
                      'segundo',
                      'seis',
-                     'ser√°',
-                     'ser√°n',
-                     'ser√≠a',
+                     'ser·',
+                     'ser·n',
+                     'serÌa',
                      'sido',
                      'siempre',
                      'siete',
@@ -516,19 +516,19 @@ lista_stopwords <- c('alg√∫n',
                      'tampoco',
                      'tan',
                      'tanto',
-                     'ten√≠a',
-                     'tendr√°',
-                     'tendr√°n',
+                     'tenÌa',
+                     'tendr·',
+                     'tendr·n',
                      'tenga',
                      'tenido',
                      'tercera',
                      'toda',
                      'todas',
-                     'todav√≠a',
+                     'todavÌa',
                      'todos',
                      'total',
                      'trata',
-                     'trav√©s',
+                     'travÈs',
                      'tres',
                      'tuvo',
                      'usted',
@@ -539,7 +539,7 @@ lista_stopwords <- c('alg√∫n',
                      'vez',
                      'y',
                      'ya')
-# Se a√±ade el t√©rmino amp al listado de stopwords
+# Se aÒade el termino amp al listado de stopwords
 lista_stopwords <- c(lista_stopwords, "amp")
 
 # Se filtran las stopwords
@@ -613,14 +613,14 @@ grid.arrange(p1, p2, nrow = 1)
 palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(tipo=="cafe_soluble") %>%
                                        select(token), mensajes_tidy %>% filter(tipo=="cafe_molido") %>%
                                        select(token)) %>% nrow()
-paste("N√∫mero de palabras comunes entre soluble y molido", palabras_comunes)
+paste("Numero de palabras comunes entre soluble y molido", palabras_comunes)
 
 
 
 palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(tipo=="cafe_grano") %>%
                                        select(token), mensajes_tidy %>% filter(tipo=="cafe_molido") %>%
                                        select(token)) %>% nrow()
-paste("N√∫mero de palabras comunes entre grano y molido", palabras_comunes)
+paste("Numero de palabras comunes entre grano y molido", palabras_comunes)
 
 
 #########################Comparaci√≥n en el uso de palabras
@@ -629,16 +629,16 @@ mensajes_spread <- mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>%
   spread(key = tipo, value = n, fill = 0, drop = TRUE)
 mensajes_unpivot <- mensajes_spread %>% gather(key = "tipo", value = "n", -token)
 
-# Selecci√≥n de los tipoes elonmusk y mayoredlee
+# Seleccion de los tipoes elonmusk y mayoredlee
 mensajes_unpivot <- mensajes_unpivot %>% filter(tipo %in% c("cafe_grano",
                                                             "cafe_molido"))
-# Se a√±ade el total de palabras de cada tipo
+# Se aniade el total de palabras de cada tipo
 mensajes_unpivot <- mensajes_unpivot %>% left_join(mensajes_tidy %>%
                                                      group_by(tipo) %>%
                                                      summarise(N = n()),
                                                    by = "tipo")
 
-# C√°lculo de odds y log of odds de cada palabra
+# Calculo de odds y log of odds de cada palabra
 mensajes_logOdds <- mensajes_unpivot %>%  mutate(odds = (n + 1) / (N + 1))
 mensajes_logOdds <- mensajes_logOdds %>% select(tipo, token, odds) %>% 
   spread(key = tipo, value = odds)
@@ -653,7 +653,7 @@ mensajes_logOdds <- mensajes_logOdds %>%
                                   "cafe_molido"))
 mensajes_logOdds %>% arrange(desc(abs_log_odds)) %>% head() 
 
-###### Representaci√≥n de las 30 palabras m√°s diferenciadas 
+###### Representacion de las 30 palabras m√°s diferenciadas 
 mensajes_logOdds %>% group_by(tipo_frecuente) %>% top_n(8, abs_log_odds) %>%
   ggplot(aes(x = reorder(token, log_odds), y = log_odds, fill = tipo_frecuente)) +
   geom_col() +
@@ -662,7 +662,7 @@ mensajes_logOdds %>% group_by(tipo_frecuente) %>% top_n(8, abs_log_odds) %>%
   theme_bw()
 
 
-########### Relaci√≥n entre palabras
+########### Relacion entre palabras
 library(tidytext)
 limpiar <- function(content){
   # El orden de la limpieza no es arbitrario
@@ -690,7 +690,7 @@ bigramas  %>% count(bigrama, sort = TRUE)
 
 ######################## Separar los bigramas por stop words
 
-# Separaci√≥n de los bigramas 
+# Separacion de los bigramas 
 bigrams_separados <- bigramas %>% separate(bigrama, c("palabra1", "palabra2"),
                                            sep = " ")
 head(bigrams_separados)
@@ -700,11 +700,11 @@ bigrams_separados <- bigrams_separados  %>%
   filter(!palabra1 %in% lista_stopwords) %>%
   filter(!palabra2 %in% lista_stopwords)
 
-# Uni√≥n de las palabras para formar de nuevo los bigramas
+# Union de las palabras para formar de nuevo los bigramas
 bigramas <- bigrams_separados %>%
   unite(bigrama, palabra1, palabra2, sep = " ")
 
-# Nuevo contaje para identificar los bigramas m√°s frecuentes
+# Nuevo contaje para identificar los bigramas mas frecuentes
 bigramas  %>% count(bigrama, sort = TRUE) %>% print(n = 20)
 ##########################NUEVO############################
 library(igraph)
@@ -729,7 +729,7 @@ export(bigram_counts, "cuenta_bigramas.xlsx")
 #   dplyr::count(bigram, sort = TRUE)
 
 bigram_counts %>%
-  filter(n >= 10) %>% #filtro para grafico mas de 20 interacciones
+  filter(n >= 2) %>% #filtro para grafico mas de 20 interacciones
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
   geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "green") +
@@ -737,3 +737,13 @@ bigram_counts %>%
   geom_node_text(aes(label = name), repel = TRUE, 
                  point.padding = unit(0.2, "lines")) +
   ggtitle('Bigramas')
+
+##reemplazar palabras
+#por_pagina_palabras[por_pagina_palabras == "cafÈ"] <- "palabra reemplazadora"
+
+
+#remover palabras
+#por_pagina_palabras <- por_pagina_palabras[por_pagina_palabras$palabra !="sabor",]
+
+
+#File1$fecha1<-as.Date(as.character(File1$fecha2), format="%d/%m/%Y")
