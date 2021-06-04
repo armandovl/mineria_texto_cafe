@@ -1,11 +1,11 @@
 library(tidyverse)
 library(readxl) #para leer el excel
 
-#poniendo el directorio en la carpeta
-setwd("C:/Users/Armando/Desktop/cafe_nuevo")
-
 # Se unen todos los mensajes en un único dataframe
-mensajes <- read_excel("mensaje_cafe.xlsx");
+mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/buenos_general_correciones.csv"
+mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/malos_general_correcciones.csv"
+
+mensajes <- read.csv(url(mi_URL))
 
 # ver los primeros 5 lineas
 head(mensajes)
