@@ -1,7 +1,7 @@
 library(tidyverse)
 library(readxl) #para leer el excel
 
-# Se unen todos los mensajes en un único dataframe
+# Se traen los datos de ur github
 mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/buenos_general_correciones.csv"
 mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/malos_general_correcciones.csv"
 
@@ -9,6 +9,10 @@ mensajes <- read.csv(url(mi_URL))
 
 # ver los primeros 5 lineas
 head(mensajes)
+
+mensajes$date<-as.Date(as.character(mensajes$date), format="%d/%m/%Y")
+
+str(mensajes)
 
 #sleccionar la columna
 mensajes <- mensajes %>% select(tipo,content,date)
@@ -65,8 +69,8 @@ ggplot(mensajes, aes(x = as.Date(date), fill = tipo)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
-# distribucion temnporal 2
-mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(fecha, "%Y-%m"))
+# distribucion temnporal 2 #aqui hay error
+mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(fecha, "%Y/%m"))
 mensajes_mes_anyo %>% group_by(tipo, mes_anyo) %>% summarise(n = n()) %>%
   ggplot(aes(x = mes_anyo, y = n, color = tipo)) +
   geom_line(aes(group = tipo)) +
