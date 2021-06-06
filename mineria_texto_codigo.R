@@ -368,12 +368,3 @@ bigram_counts %>%
                  point.padding = unit(0.2, "lines")) +
   ggtitle('Bigramas')
 
-##reemplazar palabras
-#por_pagina_palabras[por_pagina_palabras == "caf?"] <- "palabra reemplazadora"
-
-
-#remover palabras
-#por_pagina_palabras <- por_pagina_palabras[por_pagina_palabras$palabra !="sabor",]
-
-
-#File1$fecha1<-as.Date(as.character(File1$fecha2), format="%d/%m/%Y")
