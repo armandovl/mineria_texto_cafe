@@ -368,3 +368,4 @@ bigram_counts %>%
                  point.padding = unit(0.2, "lines")) +
   ggtitle('Bigramas')
 
+####################################
