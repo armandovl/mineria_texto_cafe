@@ -44,7 +44,7 @@ limpiar_tokenizar <- function(argumento_content){
   return(nuevo_argumento_content)
 }
 
-test = "Esto es ejemplo de tetxo tokenizado"
+test = "Esto es ejemplo de un texto tokenizado"
 limpiar_tokenizar(argumento_content = test)
 
 ###################################################################
@@ -52,31 +52,38 @@ limpiar_tokenizar(argumento_content = test)
 # Se aplica la funcion de limpieza y tokenizacion a cada tweet
 mensajes <- mensajes %>% mutate(texto_tokenizado = map(.x = content,
                                                        .f = limpiar_tokenizar))
-mensajes %>% select(texto_tokenizado) %>% head()
+
+#hasta aqui mensajes ya tiene el texto tokenizado
+
+mensajes %>% select(texto_tokenizado) %>% head() #es solo para ver le texto tokenizado
 
 ######################## Analisis exploratorio
 #expansion vertical
 mensajes_tidy <- mensajes %>% select(-content) %>% unnest()
-mensajes_tidy <- mensajes_tidy %>% rename(token = texto_tokenizado)
+mensajes_tidy <- mensajes_tidy %>% rename(token = texto_tokenizado) #cambiar nombre columna
 head(mensajes_tidy) 
+
+# aquì se puede ubicar un filtro a la columna token
+#remover palabras
+#mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="sabor",]
 
 
 #distribucion temporal de los mensajes
 library(lubridate)
 
-ggplot(mensajes, aes(x = as.Date(date), fill = sentimiento)) +
+ggplot(mensajes, aes(x = as.Date(date), fill = sentimiento_tipo)) +
   geom_histogram(position = "identity", bins = 20, show.legend = FALSE) +
   scale_x_date(date_labels = "%m-%Y", date_breaks = "5 month") +
   labs(x = "fecha de publicacion", y = "numero de mensajes") +
-  facet_wrap(~ sentimiento, ncol = 1) +
+  facet_wrap(~ sentimiento_tipo, ncol = 1) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
 # distribucion temnporal 2 #aqui hay error
 mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(date, "%Y-%m"))
-mensajes_mes_anyo %>% group_by(sentimiento, mes_anyo) %>% summarise(n = n()) %>%
-  ggplot(aes(x = mes_anyo, y = n, color = sentimiento)) +
-  geom_line(aes(group = sentimiento)) +
+mensajes_mes_anyo %>% group_by(sentimiento_tipo, mes_anyo) %>% summarise(n = n()) %>%
+  ggplot(aes(x = mes_anyo, y = n, color = sentimiento_tipo)) +
+  geom_line(aes(group = sentimiento_tipo)) +
   labs(title = "Numero de mensajes publicados", x = "fecha de publicacion",
        y = "numero de mensajes") +
   theme_bw() +
@@ -84,18 +91,18 @@ mensajes_mes_anyo %>% group_by(sentimiento, mes_anyo) %>% summarise(n = n()) %>%
         legend.position = "bottom")
 
 #palabras por usuario
-mensajes_tidy %>% group_by(sentimiento) %>% summarise(n = n()) 
-mensajes_tidy %>%  ggplot(aes(x = sentimiento)) + geom_bar() + coord_flip() + theme_bw() 
+mensajes_tidy %>% group_by(sentimiento_tipo) %>% summarise(n = n()) 
+mensajes_tidy %>%  ggplot(aes(x = sentimiento_tipo)) + geom_bar() + coord_flip() + theme_bw() 
 
 #palabras distintas por usuario
-mensajes_tidy %>% select(sentimiento, token) %>% distinct() %>%  group_by(sentimiento) %>%
+mensajes_tidy %>% select(sentimiento_tipo, token) %>% distinct() %>%  group_by(sentimiento_tipo) %>%
   summarise(palabras_distintas = n()) 
-mensajes_tidy %>% select(sentimiento, token) %>% distinct() %>%
-  ggplot(aes(x = sentimiento)) + geom_bar() + coord_flip() + theme_bw()
+mensajes_tidy %>% select(sentimiento_tipo, token) %>% distinct() %>%
+  ggplot(aes(x = sentimiento_tipo)) + geom_bar() + coord_flip() + theme_bw()
 
 #Palabras mas usadas por usuario
-mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>% group_by(sentimiento) %>%
-  top_n(10, n) %>% arrange(sentimiento, desc(n)) %>% print(n=30)
+mensajes_tidy %>% group_by(sentimiento_tipo, token) %>% count(token) %>% group_by(sentimiento_tipo) %>%
+  top_n(10, n) %>% arrange(sentimiento_tipo, desc(n)) %>% print(n=30)
 
 
 ########################## QUitar STOP WORDS
@@ -541,7 +548,8 @@ lista_stopwords <- c('algún',
                      'ver',
                      'vez',
                      'y',
-                     'ya')
+                     'ya',
+                     'the','not','it','britt')
 # Se anade el termino amp al listado de stopwords
 lista_stopwords <- c(lista_stopwords, "amp")
 
@@ -549,18 +557,18 @@ lista_stopwords <- c(lista_stopwords, "amp")
 mensajes_tidy <- mensajes_tidy %>% filter(!(token %in% lista_stopwords))
 
 ###################frecuencia palabras mas frecuentes sin stop
-mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>% group_by(sentimiento) %>%
-  top_n(15, n) %>% arrange(sentimiento, desc(n)) %>%
-  ggplot(aes(x = reorder(token,n), y = n, fill = sentimiento)) +
+mensajes_tidy %>% group_by(sentimiento_tipo, token) %>% count(token) %>% group_by(sentimiento_tipo) %>%
+  top_n(15, n) %>% arrange(sentimiento_tipo, desc(n)) %>%
+  ggplot(aes(x = reorder(token,n), y = n, fill = sentimiento_tipo)) +
   geom_col() +
   theme_bw() +
   labs(y = "", x = "") +
   theme(legend.position = "none") +
   coord_flip() +
-  facet_wrap(~sentimiento,scales = "free", ncol = 1, drop = TRUE)
+  facet_wrap(~sentimiento_tipo,scales = "free", ncol = 1, drop = TRUE)
 
 
-###################### grafico en nube de palabras
+###################### grafico en nube de palabras NO*
 library(wordcloud)
 library(RColorBrewer)
 
@@ -571,28 +579,37 @@ wordcloud_custom <- function(grupo, df){
             colors = brewer.pal(8, "Dark2"))
 }
 
-df_grouped <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
-  group_by(sentimiento) %>% mutate(frecuencia = n / n()) %>%
-  arrange(sentimiento, desc(frecuencia)) %>% nest() 
+df_grouped <- mensajes_tidy %>% group_by(sentimiento_tipo, token) %>% count(token) %>%
+  group_by(sentimiento_tipo) %>% mutate(frecuencia = n / n()) %>%
+  arrange(sentimiento_tipo, desc(frecuencia)) %>% nest() 
 
-walk2(.x = df_grouped$sentimiento, .y = df_grouped$data, .f = wordcloud_custom)
+#ver por tiempo la nubes
+walk2(.x = df_grouped$sentimiento_tipo, .y = df_grouped$data, .f = wordcloud_custom)
 
 ############### CORRELACION ENTRE USUARIOS
 library(gridExtra)
 library(scales)
 
-mensajes_spread <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
-  spread(key = sentimiento, value = n, fill = NA, drop = TRUE)
+############ aqui va el filtro
+#remover palabras
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="favor",]
+#reemplazar
+mensajes_tidy$token[grepl("agrado",mensajes_tidy$token)] <- "agraxx"
+############ aqui va el filtro
 
-cor.test(~ positivos + negativos, method = "pearson", data = mensajes_spread)
+
+mensajes_spread <- mensajes_tidy %>% group_by(sentimiento_tipo, token) %>% count(token) %>%
+  spread(key = sentimiento_tipo, value = n, fill = NA, drop = TRUE)
+
+cor.test(~ positivos_cafe_grano + negativos_cafe_grano, method = "pearson", data = mensajes_spread)
 
 #OTRA CORRELACION
-cor.test(~ cafe_molido + cafe_grano, data = mensajes_spread)
+cor.test(~ positivos_cafe_molido + negativos_cafe_molido, data = mensajes_spread)
 
 #####GRAFICAR CVORRELACION
-p1 <- ggplot(mensajes_spread, aes(negativos, positivos)) +
-  geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
-  geom_text(aes(label = token), check_overlap = TRUE, vjust = 1.5) +
+p1 <- ggplot(mensajes_spread, aes(negativos_cafe_grano, positivos_cafe_grano)) +
+  geom_jitter(alpha = 0.05, size = 2.5, width = 0.25, height = 0.25) +
+  geom_text(aes(label = token), check_overlap = TRUE, vjust = 10) + #vjust defecto 1.5
   scale_x_log10(labels = percent_format()) +
   scale_y_log10(labels = percent_format()) +
   geom_abline(color = "red") +
@@ -600,9 +617,9 @@ p1 <- ggplot(mensajes_spread, aes(negativos, positivos)) +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank())
 
-p2 <- ggplot(mensajes_spread, aes(positivos, negativos)) +
+p2 <- ggplot(mensajes_spread, aes(negativos_cafe_molido, positivos_cafe_molido)) +
   geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
-  geom_text(aes(label = token), check_overlap = TRUE, vjust = 1.5) +
+  geom_text(aes(label = token), check_overlap = TRUE, vjust = 10) + #vjust defecto 1.5
   scale_x_log10(labels = percent_format()) +
   scale_y_log10(labels = percent_format()) +
   geom_abline(color = "red") +
@@ -612,60 +629,69 @@ p2 <- ggplot(mensajes_spread, aes(positivos, negativos)) +
 
 grid.arrange(p1, p2, nrow = 1)
 
-########################### pALABRAS COMUNES
-palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento=="cafe_soluble") %>%
-                                       select(token), mensajes_tidy %>% filter(sentimiento=="cafe_molido") %>%
+########################### pALABRAS COMUNES NO*
+palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento_tipo=="cafe_soluble") %>%
+                                       select(token), mensajes_tidy %>% filter(sentimiento_tipo=="cafe_molido") %>%
                                        select(token)) %>% nrow()
 paste("Numero de palabras comunes entre soluble y molido", palabras_comunes)
 
 
 
-palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento=="cafe_grano") %>%
-                                       select(token), mensajes_tidy %>% filter(sentimiento=="cafe_molido") %>%
+palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento_tipo=="cafe_grano") %>%
+                                       select(token), mensajes_tidy %>% filter(sentimiento_tipo=="cafe_molido") %>%
                                        select(token)) %>% nrow()
 paste("Numero de palabras comunes entre grano y molido", palabras_comunes)
 
 
 #########################Comparación en el uso de palabras
-# Pivotaje y despivotaje
-mensajes_spread <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
-  spread(key = sentimiento, value = n, fill = 0, drop = TRUE)
-mensajes_unpivot <- mensajes_spread %>% gather(key = "sentimiento", value = "n", -token)
 
-# Seleccion de los sentimientoes elonmusk y mayoredlee
-mensajes_unpivot <- mensajes_unpivot %>% filter(sentimiento %in% c("positivos",
-                                                            "negativos"))
-# Se aniade el total de palabras de cada sentimiento
+############ aqui va el filtro
+#remover palabras
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="favor",]
+#reemplazar
+mensajes_tidy$token[grepl("agrado",mensajes_tidy$token)] <- "agraxx"
+############ aqui va el filtro
+
+
+# Pivotaje y despivotaje
+mensajes_spread <- mensajes_tidy %>% group_by(sentimiento_tipo, token) %>% count(token) %>%
+  spread(key = sentimiento_tipo, value = n, fill = 0, drop = TRUE)
+mensajes_unpivot <- mensajes_spread %>% gather(key = "sentimiento_tipo", value = "n", -token)
+
+# Seleccion de los sentimiento_tipoes elonmusk y mayoredlee
+mensajes_unpivot <- mensajes_unpivot %>% filter(sentimiento_tipo %in% c("positivos_cafe_grano",
+                                                            "negativos_cafe_grano"))
+# Se aniade el total de palabras de cada sentimiento_tipo
 mensajes_unpivot <- mensajes_unpivot %>% left_join(mensajes_tidy %>%
-                                                     group_by(sentimiento) %>%
+                                                     group_by(sentimiento_tipo) %>%
                                                      summarise(N = n()),
-                                                   by = "sentimiento")
+                                                   by = "sentimiento_tipo")
 
 # Calculo de odds y log of odds de cada palabra
 mensajes_logOdds <- mensajes_unpivot %>%  mutate(odds = (n + 1) / (N + 1))
-mensajes_logOdds <- mensajes_logOdds %>% select(sentimiento, token, odds) %>% 
-  spread(key = sentimiento, value = odds)
-mensajes_logOdds <- mensajes_logOdds %>%  mutate(log_odds = log(positivos/negativos),
+mensajes_logOdds <- mensajes_logOdds %>% select(sentimiento_tipo, token, odds) %>% 
+  spread(key = sentimiento_tipo, value = odds)
+mensajes_logOdds <- mensajes_logOdds %>%  mutate(log_odds = log(positivos_cafe_grano/negativos_cafe_grano),
                                                  abs_log_odds = abs(log_odds))
 # Si el logaritmo de odds es mayor que cero, significa que es una palabra con
 # mayor probabilidad de ser de Elon Musk. Esto es así porque el ratio sea ha
 # calculado como elonmusk/mayoredlee.
 mensajes_logOdds <- mensajes_logOdds %>%
-  mutate(sentimiento_frecuente = if_else(log_odds > 0,
-                                  "positivos",
-                                  "negativos"))
+  mutate(sentimiento_tipo_frecuente = if_else(log_odds > 0,
+                                  "positivos grano",
+                                  "negativos grano"))
 mensajes_logOdds %>% arrange(desc(abs_log_odds)) %>% head() 
 
 ###### Representacion de las 30 palabras más diferenciadas 
-mensajes_logOdds %>% group_by(sentimiento_frecuente) %>% top_n(9, abs_log_odds) %>%
-  ggplot(aes(x = reorder(token, log_odds), y = log_odds, fill = sentimiento_frecuente)) +
+mensajes_logOdds %>% group_by(sentimiento_tipo_frecuente) %>% top_n(9, abs_log_odds) %>%
+  ggplot(aes(x = reorder(token, log_odds), y = log_odds, fill = sentimiento_tipo_frecuente)) +
   geom_col() +
   labs(x = "palabra", y = "log odds ratio (@elonmusk / mayoredlee)") +
   coord_flip() + 
   theme_bw()
 
 
-########### Relacion entre palabras
+########### Relacion entre palabras NO*
 library(tidytext)
 limpiar <- function(content){
   # El orden de la limpieza no es arbitrario
