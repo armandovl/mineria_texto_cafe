@@ -16,7 +16,7 @@ mensajes$date<-as.Date(as.character(mensajes$date), format="%d/%m/%Y")
 str(mensajes)
 
 #sleccionar la columna
-mensajes <- mensajes %>% select(tipo,content,date)
+mensajes <- mensajes %>% select(sentimiento,content,date)
 
 # ver los primeros 5 lineas
 head(mensajes)
@@ -62,19 +62,19 @@ head(mensajes_tidy)
 #distribucion temporal de los mensajes
 library(lubridate)
 
-ggplot(mensajes, aes(x = as.Date(date), fill = tipo)) +
+ggplot(mensajes, aes(x = as.Date(date), fill = sentimiento)) +
   geom_histogram(position = "identity", bins = 20, show.legend = FALSE) +
   scale_x_date(date_labels = "%m-%Y", date_breaks = "5 month") +
-  labs(x = "fecha de publicaci?n", y = "n?mero de mensajes") +
-  facet_wrap(~ tipo, ncol = 1) +
+  labs(x = "fecha de publicacion", y = "numero de mensajes") +
+  facet_wrap(~ sentimiento, ncol = 1) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
 # distribucion temnporal 2 #aqui hay error
 mensajes_mes_anyo <- mensajes %>% mutate(mes_anyo = format(date, "%Y-%m"))
-mensajes_mes_anyo %>% group_by(tipo, mes_anyo) %>% summarise(n = n()) %>%
-  ggplot(aes(x = mes_anyo, y = n, color = tipo)) +
-  geom_line(aes(group = tipo)) +
+mensajes_mes_anyo %>% group_by(sentimiento, mes_anyo) %>% summarise(n = n()) %>%
+  ggplot(aes(x = mes_anyo, y = n, color = sentimiento)) +
+  geom_line(aes(group = sentimiento)) +
   labs(title = "Numero de mensajes publicados", x = "fecha de publicacion",
        y = "numero de mensajes") +
   theme_bw() +
@@ -82,22 +82,22 @@ mensajes_mes_anyo %>% group_by(tipo, mes_anyo) %>% summarise(n = n()) %>%
         legend.position = "bottom")
 
 #palabras por usuario
-mensajes_tidy %>% group_by(tipo) %>% summarise(n = n()) 
-mensajes_tidy %>%  ggplot(aes(x = tipo)) + geom_bar() + coord_flip() + theme_bw() 
+mensajes_tidy %>% group_by(sentimiento) %>% summarise(n = n()) 
+mensajes_tidy %>%  ggplot(aes(x = sentimiento)) + geom_bar() + coord_flip() + theme_bw() 
 
 #palabras distintas por usuario
-mensajes_tidy %>% select(tipo, token) %>% distinct() %>%  group_by(tipo) %>%
+mensajes_tidy %>% select(sentimiento, token) %>% distinct() %>%  group_by(sentimiento) %>%
   summarise(palabras_distintas = n()) 
-mensajes_tidy %>% select(tipo, token) %>% distinct() %>%
-  ggplot(aes(x = tipo)) + geom_bar() + coord_flip() + theme_bw()
+mensajes_tidy %>% select(sentimiento, token) %>% distinct() %>%
+  ggplot(aes(x = sentimiento)) + geom_bar() + coord_flip() + theme_bw()
 
 #Palabras mas usadas por usuario
-mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>% group_by(tipo) %>%
-  top_n(10, n) %>% arrange(tipo, desc(n)) %>% print(n=30)
+mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>% group_by(sentimiento) %>%
+  top_n(10, n) %>% arrange(sentimiento, desc(n)) %>% print(n=30)
 
 
 ########################## QUitar STOP WORDS
-lista_stopwords <- c('alg?n',
+lista_stopwords <- c('algún',
                      'alguna',
                      'algunas',
                      'alguno',
@@ -206,7 +206,7 @@ lista_stopwords <- c('alg?n',
                      'podrian',
                      'podrias',
                      'por',
-                     'por qu?',
+                     'por qué',
                      'porque',
                      'primero',
                      'puede',
@@ -231,7 +231,7 @@ lista_stopwords <- c('alg?n',
                      'soy',
                      'su',
                      'sus',
-                     'tambi?n',
+                     'también',
                      'teneis',
                      'tenemos',
                      'tener',
@@ -275,24 +275,24 @@ lista_stopwords <- c('alg?n',
                      'vosotros',
                      'voy',
                      'yo',
-                     '?l',
-                     '?sta',
-                     '?stas',
-                     '?ste',
-                     '?stos',
-                     '?ltima',
-                     '?ltimas',
-                     '?ltimo',
-                     '?ltimos',
+                     'él',
+                     'ésta',
+                     'éstas',
+                     'éste',
+                     'éstos',
+                     'última',
+                     'últimas',
+                     'último',
+                     'últimos',
                      'a',
-                     'a?adi?',
-                     'a?n',
+                     'añadió',
+                     'aún',
                      'actualmente',
                      'adelante',
-                     'adem?s',
-                     'afirm?',
-                     'agreg?',
-                     'ah?',
+                     'además',
+                     'afirmó',
+                     'agregó',
+                     'ahí',
                      'ahora',
                      'al',
                      'algo',
@@ -300,9 +300,9 @@ lista_stopwords <- c('alg?n',
                      'anterior',
                      'apenas',
                      'aproximadamente',
-                     'aqu?',
-                     'as?',
-                     'asegur?',
+                     'aquí',
+                     'así',
+                     'aseguró',
                      'aunque',
                      'ayer',
                      'buen',
@@ -310,13 +310,13 @@ lista_stopwords <- c('alg?n',
                      'buenas',
                      'bueno',
                      'buenos',
-                     'c?mo',
+                     'cómo',
                      'casi',
                      'cerca',
                      'cinco',
-                     'coment?',
+                     'comentó',
                      'conocer',
-                     'consider?',
+                     'consideró',
                      'considera',
                      'contra',
                      'cosas',
@@ -335,10 +335,10 @@ lista_stopwords <- c('alg?n',
                      'deben',
                      'debido',
                      'decir',
-                     'dej?',
+                     'dejó',
                      'del',
-                     'dem?s',
-                     'despu?s',
+                     'demás',
+                     'después',
                      'dice',
                      'dicen',
                      'dicho',
@@ -360,11 +360,11 @@ lista_stopwords <- c('alg?n',
                      'ese',
                      'eso',
                      'esos',
-                     'est?',
-                     'est?n',
+                     'está',
+                     'están',
                      'estaban',
                      'estar',
-                     'estar?',
+                     'estará',
                      'estas',
                      'este',
                      'esto',
@@ -373,15 +373,15 @@ lista_stopwords <- c('alg?n',
                      'ex',
                      'existe',
                      'existen',
-                     'explic?',
-                     'expres?',
+                     'explicó',
+                     'expresó',
                      'fuera',
                      'gran',
                      'grandes',
-                     'hab?a',
-                     'hab?an',
+                     'había',
+                     'habían',
                      'haber',
-                     'habr?',
+                     'habrá',
                      'hacerlo',
                      'hacia',
                      'haciendo',
@@ -397,25 +397,25 @@ lista_stopwords <- c('alg?n',
                      'hoy',
                      'hubo',
                      'igual',
-                     'indic?',
-                     'inform?',
+                     'indicó',
+                     'informó',
                      'junto',
                      'lado',
                      'le',
                      'les',
-                     'lleg?',
+                     'llegó',
                      'lleva',
                      'llevar',
                      'luego',
                      'lugar',
-                     'm?s',
+                     'más',
                      'manera',
-                     'manifest?',
+                     'manifestó',
                      'mayor',
                      'me',
                      'mediante',
                      'mejor',
-                     'mencion?',
+                     'mencionó',
                      'menos',
                      'mi',
                      'misma',
@@ -429,7 +429,7 @@ lista_stopwords <- c('alg?n',
                      'nada',
                      'nadie',
                      'ni',
-                     'ning?n',
+                     'ningún',
                      'ninguna',
                      'ningunas',
                      'ninguno',
@@ -460,14 +460,14 @@ lista_stopwords <- c('alg?n',
                      'pocas',
                      'poco',
                      'pocos',
-                     'podr?',
-                     'podr?n',
-                     'podr?a',
-                     'podr?an',
+                     'podrá',
+                     'podrán',
+                     'podría',
+                     'podrían',
                      'poner',
                      'posible',
-                     'pr?ximo',
-                     'pr?ximos',
+                     'próximo',
+                     'próximos',
                      'primer',
                      'primera',
                      'primeros',
@@ -479,30 +479,30 @@ lista_stopwords <- c('alg?n',
                      'pudo',
                      'pueda',
                      'pues',
-                     'qu?',
+                     'qué',
                      'que',
-                     'qued?',
+                     'quedó',
                      'queremos',
-                     'qui?n',
+                     'quién',
                      'quienes',
                      'quiere',
-                     'realiz?',
+                     'realizó',
                      'realizado',
                      'realizar',
                      'respecto',
-                     's?',
-                     's?lo',
+                     'sí',
+                     'sólo',
                      'se',
-                     'se?al?',
+                     'señaló',
                      'sea',
                      'sean',
-                     'seg?n',
+                     'según',
                      'segunda',
                      'segundo',
                      'seis',
-                     'ser?',
-                     'ser?n',
-                     'ser?a',
+                     'será',
+                     'serán',
+                     'sería',
                      'sido',
                      'siempre',
                      'siete',
@@ -517,19 +517,19 @@ lista_stopwords <- c('alg?n',
                      'tampoco',
                      'tan',
                      'tanto',
-                     'ten?a',
-                     'tendr?',
-                     'tendr?n',
+                     'tenía',
+                     'tendrá',
+                     'tendrán',
                      'tenga',
                      'tenido',
                      'tercera',
                      'toda',
                      'todas',
-                     'todav?a',
+                     'todavía',
                      'todos',
                      'total',
                      'trata',
-                     'trav?s',
+                     'través',
                      'tres',
                      'tuvo',
                      'usted',
@@ -540,22 +540,22 @@ lista_stopwords <- c('alg?n',
                      'vez',
                      'y',
                      'ya')
-# Se a?ade el termino amp al listado de stopwords
+# Se anade el termino amp al listado de stopwords
 lista_stopwords <- c(lista_stopwords, "amp")
 
 # Se filtran las stopwords
 mensajes_tidy <- mensajes_tidy %>% filter(!(token %in% lista_stopwords))
 
 ###################frecuencia palabras mas frecuentes sin stop
-mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>% group_by(tipo) %>%
-  top_n(15, n) %>% arrange(tipo, desc(n)) %>%
-  ggplot(aes(x = reorder(token,n), y = n, fill = tipo)) +
+mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>% group_by(sentimiento) %>%
+  top_n(15, n) %>% arrange(sentimiento, desc(n)) %>%
+  ggplot(aes(x = reorder(token,n), y = n, fill = sentimiento)) +
   geom_col() +
   theme_bw() +
   labs(y = "", x = "") +
   theme(legend.position = "none") +
   coord_flip() +
-  facet_wrap(~tipo,scales = "free", ncol = 1, drop = TRUE)
+  facet_wrap(~sentimiento,scales = "free", ncol = 1, drop = TRUE)
 
 
 ###################### grafico en nube de palabras
@@ -569,26 +569,26 @@ wordcloud_custom <- function(grupo, df){
             colors = brewer.pal(8, "Dark2"))
 }
 
-df_grouped <- mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>%
-  group_by(tipo) %>% mutate(frecuencia = n / n()) %>%
-  arrange(tipo, desc(frecuencia)) %>% nest() 
+df_grouped <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
+  group_by(sentimiento) %>% mutate(frecuencia = n / n()) %>%
+  arrange(sentimiento, desc(frecuencia)) %>% nest() 
 
-walk2(.x = df_grouped$tipo, .y = df_grouped$data, .f = wordcloud_custom)
+walk2(.x = df_grouped$sentimiento, .y = df_grouped$data, .f = wordcloud_custom)
 
 ############### CORRELACION ENTRE USUARIOS
 library(gridExtra)
 library(scales)
 
-mensajes_spread <- mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>%
-  spread(key = tipo, value = n, fill = NA, drop = TRUE)
+mensajes_spread <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
+  spread(key = sentimiento, value = n, fill = NA, drop = TRUE)
 
-cor.test(~ cafe_capsulas + cafe_molido, method = "pearson", data = mensajes_spread)
+cor.test(~ positivos + negativos, method = "pearson", data = mensajes_spread)
 
 #OTRA CORRELACION
 cor.test(~ cafe_molido + cafe_grano, data = mensajes_spread)
 
 #####GRAFICAR CVORRELACION
-p1 <- ggplot(mensajes_spread, aes(cafe_capsulas, cafe_soluble)) +
+p1 <- ggplot(mensajes_spread, aes(negativos, positivos)) +
   geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
   geom_text(aes(label = token), check_overlap = TRUE, vjust = 1.5) +
   scale_x_log10(labels = percent_format()) +
@@ -598,7 +598,7 @@ p1 <- ggplot(mensajes_spread, aes(cafe_capsulas, cafe_soluble)) +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank())
 
-p2 <- ggplot(mensajes_spread, aes(cafe_grano, cafe_molido)) +
+p2 <- ggplot(mensajes_spread, aes(positivos, negativos)) +
   geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
   geom_text(aes(label = token), check_overlap = TRUE, vjust = 1.5) +
   scale_x_log10(labels = percent_format()) +
@@ -611,52 +611,52 @@ p2 <- ggplot(mensajes_spread, aes(cafe_grano, cafe_molido)) +
 grid.arrange(p1, p2, nrow = 1)
 
 ########################### pALABRAS COMUNES
-palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(tipo=="cafe_soluble") %>%
-                                       select(token), mensajes_tidy %>% filter(tipo=="cafe_molido") %>%
+palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento=="cafe_soluble") %>%
+                                       select(token), mensajes_tidy %>% filter(sentimiento=="cafe_molido") %>%
                                        select(token)) %>% nrow()
 paste("Numero de palabras comunes entre soluble y molido", palabras_comunes)
 
 
 
-palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(tipo=="cafe_grano") %>%
-                                       select(token), mensajes_tidy %>% filter(tipo=="cafe_molido") %>%
+palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento=="cafe_grano") %>%
+                                       select(token), mensajes_tidy %>% filter(sentimiento=="cafe_molido") %>%
                                        select(token)) %>% nrow()
 paste("Numero de palabras comunes entre grano y molido", palabras_comunes)
 
 
 #########################Comparación en el uso de palabras
 # Pivotaje y despivotaje
-mensajes_spread <- mensajes_tidy %>% group_by(tipo, token) %>% count(token) %>%
-  spread(key = tipo, value = n, fill = 0, drop = TRUE)
-mensajes_unpivot <- mensajes_spread %>% gather(key = "tipo", value = "n", -token)
+mensajes_spread <- mensajes_tidy %>% group_by(sentimiento, token) %>% count(token) %>%
+  spread(key = sentimiento, value = n, fill = 0, drop = TRUE)
+mensajes_unpivot <- mensajes_spread %>% gather(key = "sentimiento", value = "n", -token)
 
-# Seleccion de los tipoes elonmusk y mayoredlee
-mensajes_unpivot <- mensajes_unpivot %>% filter(tipo %in% c("cafe_grano",
-                                                            "cafe_molido"))
-# Se aniade el total de palabras de cada tipo
+# Seleccion de los sentimientoes elonmusk y mayoredlee
+mensajes_unpivot <- mensajes_unpivot %>% filter(sentimiento %in% c("positivos",
+                                                            "negativos"))
+# Se aniade el total de palabras de cada sentimiento
 mensajes_unpivot <- mensajes_unpivot %>% left_join(mensajes_tidy %>%
-                                                     group_by(tipo) %>%
+                                                     group_by(sentimiento) %>%
                                                      summarise(N = n()),
-                                                   by = "tipo")
+                                                   by = "sentimiento")
 
 # Calculo de odds y log of odds de cada palabra
 mensajes_logOdds <- mensajes_unpivot %>%  mutate(odds = (n + 1) / (N + 1))
-mensajes_logOdds <- mensajes_logOdds %>% select(tipo, token, odds) %>% 
-  spread(key = tipo, value = odds)
-mensajes_logOdds <- mensajes_logOdds %>%  mutate(log_odds = log(cafe_grano/cafe_molido),
+mensajes_logOdds <- mensajes_logOdds %>% select(sentimiento, token, odds) %>% 
+  spread(key = sentimiento, value = odds)
+mensajes_logOdds <- mensajes_logOdds %>%  mutate(log_odds = log(positivos/negativos),
                                                  abs_log_odds = abs(log_odds))
 # Si el logaritmo de odds es mayor que cero, significa que es una palabra con
 # mayor probabilidad de ser de Elon Musk. Esto es así porque el ratio sea ha
 # calculado como elonmusk/mayoredlee.
 mensajes_logOdds <- mensajes_logOdds %>%
-  mutate(tipo_frecuente = if_else(log_odds > 0,
-                                  "cafe_grano",
-                                  "cafe_molido"))
+  mutate(sentimiento_frecuente = if_else(log_odds > 0,
+                                  "positivos",
+                                  "negativos"))
 mensajes_logOdds %>% arrange(desc(abs_log_odds)) %>% head() 
 
 ###### Representacion de las 30 palabras más diferenciadas 
-mensajes_logOdds %>% group_by(tipo_frecuente) %>% top_n(8, abs_log_odds) %>%
-  ggplot(aes(x = reorder(token, log_odds), y = log_odds, fill = tipo_frecuente)) +
+mensajes_logOdds %>% group_by(sentimiento_frecuente) %>% top_n(9, abs_log_odds) %>%
+  ggplot(aes(x = reorder(token, log_odds), y = log_odds, fill = sentimiento_frecuente)) +
   geom_col() +
   labs(x = "palabra", y = "log odds ratio (@elonmusk / mayoredlee)") +
   coord_flip() + 
