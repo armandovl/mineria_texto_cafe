@@ -5,45 +5,47 @@ library(readxl) #para leer el excel
 mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/buenos_general_correciones.csv"
 mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/malos_general_correcciones.csv"
 mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/buenos_y_malos.csv"
+mi_URL="https://raw.githubusercontent.com/armandovl/mineria_texto_cafe/main/buenos_y_malos_tipo.csv"
 
 mensajes <- read.csv(url(mi_URL))
 
 # ver los primeros 5 lineas
 head(mensajes)
 
+#transformar a fecha
 mensajes$date<-as.Date(as.character(mensajes$date), format="%d/%m/%Y")
 
 str(mensajes)
 
-#sleccionar la columna
-mensajes <- mensajes %>% select(sentimiento,content,date)
+#seleccionar la columna
+mensajes <- mensajes %>% select(sentimiento_tipo,content,date)
 
 # ver los primeros 5 lineas
 head(mensajes)
 
 ########################## Hacer la funcion tokenizar
-limpiar_tokenizar <- function(content){
+limpiar_tokenizar <- function(argumento_content){
   # El orden de la limpieza no es arbitrario
-  # Se convierte todo el content a minusculas
-  nuevo_content <- tolower(content)
+  # Se convierte todo el argumento_content a minusculas
+  nuevo_argumento_content <- tolower(argumento_content)
   # Eliminacion de paginas web (palabras que empiezan por "http." seguidas 
   # de cualquier cosa que no sea un espacio)
-  nuevo_content <- str_replace_all(nuevo_content,"http\\S*", "")
+  nuevo_argumento_content <- str_replace_all(nuevo_argumento_content,"http\\S*", "")
   # Eliminacion de signos de puntuacion
-  nuevo_content <- str_replace_all(nuevo_content,"[[:punct:]]", " ")
+  nuevo_argumento_content <- str_replace_all(nuevo_argumento_content,"[[:punct:]]", " ")
   # Eliminacion de numeros
-  nuevo_content <- str_replace_all(nuevo_content,"[[:digit:]]", " ")
+  nuevo_argumento_content <- str_replace_all(nuevo_argumento_content,"[[:digit:]]", " ")
   # Eliminacion de espacios en blanco multiples
-  nuevo_content <- str_replace_all(nuevo_content,"[\\s]+", " ")
+  nuevo_argumento_content <- str_replace_all(nuevo_argumento_content,"[\\s]+", " ")
   # Tokenizacion por palabras individuales
-  nuevo_content <- str_split(nuevo_content, " ")[[1]]
+  nuevo_argumento_content <- str_split(nuevo_argumento_content, " ")[[1]]
   # Eliminacion de tokens con una longitud < 2
-  nuevo_content <- keep(.x = nuevo_content, .p = function(x){str_length(x) > 1})
-  return(nuevo_content)
+  nuevo_argumento_content <- keep(.x = nuevo_argumento_content, .p = function(x){str_length(x) > 1})
+  return(nuevo_argumento_content)
 }
 
-test = "Esto es 1 ejemplo de l'limpieza de6 TEXTO  https://t.co/rnHPgyhx4Z @JoaquinAmatRodrigo #textmining"
-limpiar_tokenizar(texto = test)
+test = "Esto es ejemplo de tetxo tokenizado"
+limpiar_tokenizar(argumento_content = test)
 
 ###################################################################
 
