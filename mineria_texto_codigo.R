@@ -68,7 +68,7 @@ head(mensajes_tidy)
 #mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="sabor",]
 
 
-#distribucion temporal de los mensajes
+#distribucion temporal de los mensajes NO*
 library(lubridate)
 
 ggplot(mensajes, aes(x = as.Date(date), fill = sentimiento_tipo)) +
@@ -194,8 +194,39 @@ library(scales)
 ############ aqui va el filtro
 #remover palabras
 mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="favor",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="buscas",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="año",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="años",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="aparte",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="armadillo",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="queda",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="deja",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="carajillos",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="ahi",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="intenso",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="asi",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="ti",]
+mensajes_tidy <- mensajes_tidy[mensajes_tidy$token !="eso",]
+
 #reemplazar
-mensajes_tidy$token[grepl("agrado",mensajes_tidy$token)] <- "agraxx"
+
+mensajes_tidy$token[grepl("capsulas",mensajes_tidy$token)] <- "cápsulas"
+mensajes_tidy$token[grepl("capsula",mensajes_tidy$token)] <- "cápsulas"
+mensajes_tidy$token[grepl("cápsula",mensajes_tidy$token)] <- "cápsulas"
+mensajes_tidy$token[grepl("cafe",mensajes_tidy$token)] <- "café"
+mensajes_tidy$token[grepl("acidez",mensajes_tidy$token)] <- "ácido"
+mensajes_tidy$token[grepl("acido",mensajes_tidy$token)] <- "ácido"
+mensajes_tidy$token[grepl("machine",mensajes_tidy$token)] <- "máquina"
+mensajes_tidy$token[grepl("abre",mensajes_tidy$token)] <- "abierto"
+mensajes_tidy$token[grepl("abrir",mensajes_tidy$token)] <- "abierto"
+mensajes_tidy$token[grepl("frascos",mensajes_tidy$token)] <- "frasco"
+mensajes_tidy$token[grepl("abrir",mensajes_tidy$token)] <- "abierto"
+mensajes_tidy$token[grepl("deberían",mensajes_tidy$token)] <- "quebrado"
+mensajes_tidy$token[grepl("adecuadamente",mensajes_tidy$token)] <- "incompatible"
+mensajes_tidy$token[grepl("tostados",mensajes_tidy$token)] <- "tostado"
+mensajes_tidy$token[grepl("fecha",mensajes_tidy$token)] <- "caducidad"
+mensajes_tidy$token[grepl("americanos",mensajes_tidy$token)] <- "americano"
+
 ############ aqui va el filtro
 
 
@@ -218,7 +249,7 @@ p1 <- ggplot(mensajes_spread, aes(negativos_cafe_grano, positivos_cafe_grano)) +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank())
 
-p2 <- ggplot(mensajes_spread, aes(negativos_cafe_molido, positivos_cafe_molido)) +
+p2 <- ggplot(mensajes_spread, aes(negativos_cafe_soluble, positivos_cafe_soluble)) +
   geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
   geom_text(aes(label = token), check_overlap = TRUE, vjust = 10) + #vjust defecto 1.5
   scale_x_log10(labels = percent_format()) +
@@ -228,7 +259,27 @@ p2 <- ggplot(mensajes_spread, aes(negativos_cafe_molido, positivos_cafe_molido))
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank())
 
-grid.arrange(p1, p2, nrow = 1)
+p3 <- ggplot(mensajes_spread, aes(negativos_cafe_capsulas, positivos_cafe_capsulas)) +
+  geom_jitter(alpha = 0.05, size = 2.5, width = 0.25, height = 0.25) +
+  geom_text(aes(label = token), check_overlap = TRUE, vjust = 10) + #vjust defecto 1.5
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  geom_abline(color = "red") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank())
+
+p4 <- ggplot(mensajes_spread, aes(negativos_cafe_molido, positivos_cafe_molido)) +
+  geom_jitter(alpha = 0.1, size = 2.5, width = 0.25, height = 0.25) +
+  geom_text(aes(label = token), check_overlap = TRUE, vjust = 10) + #vjust defecto 1.5
+  scale_x_log10(labels = percent_format()) +
+  scale_y_log10(labels = percent_format()) +
+  geom_abline(color = "red") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank())
+
+grid.arrange(p2,p3, nrow = 1)
 
 ########################### pALABRAS COMUNES NO*
 palabras_comunes <- dplyr::intersect(mensajes_tidy %>% filter(sentimiento_tipo=="cafe_soluble") %>%
